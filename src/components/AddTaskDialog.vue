@@ -1,6 +1,6 @@
 <!-- components/AddTaskDialog.vue -->
 <script setup>
-import { ref, defineEmits } from "vue";
+import { ref } from "vue";
 import Select from "primevue/select";
 import InputText from "primevue/inputtext";
 import Dialog from "primevue/dialog";
@@ -16,7 +16,7 @@ const emit = defineEmits(["update:visible", "add-task"]);
 // Form data
 const taskName = ref("");
 const dueDate = ref("");
-const priority = ref("Medium");
+const priority = ref("");
 
 // Priority options
 const priorities = ref([
@@ -38,13 +38,14 @@ const submitTask = () => {
     id: Date.now(),
     name: taskName.value,
     dueDate: dueDate.value,
-    priority: priority.value, // Ensure we only store a string
+    priority: priority.value,
+    done: false,
   });
 
   closeDialog();
   taskName.value = "";
   dueDate.value = "";
-  priority.value = "Medium";
+  priority.value = "";
 };
 </script>
 
@@ -54,6 +55,7 @@ const submitTask = () => {
     header="Add Task"
     modal
     :style="{ width: '400px' }"
+    @update:visible="emit('update:visible', $event)"
   >
     <div class="p-4">
       <label class="block text-sm">Task Name</label>
