@@ -7,14 +7,18 @@ import ConfirmPopup from "primevue/confirmpopup";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import Toast from "primevue/toast";
+import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 
 const props = defineProps(["tasks"]);
-const emit = defineEmits(["update-tasks"]);
+const emit = defineEmits(["update-tasks", "edit-task"]);
 
 const nodes = ref([]);
 const expandedKeys = ref({});
 const confirm = useConfirm();
 const toast = useToast();
+
+const showLottie = ref(false); // Declare the state for showing Lottie animation
+const todayTasks = ref([]); // Store today's tasks
 
 const markAsDone = (task) => {
   const updatedTasks = props.tasks.map((t) => {
@@ -33,41 +37,40 @@ const markAsDone = (task) => {
     detail: task.done ? "Task moved back to pending" : "Task marked as done",
     life: 3000,
   });
+  checkIfAllTodayTasksDone(updatedTasks);
+};
+
+const checkIfAllTodayTasksDone = (updatedTasks) => {
+  todayTasks.value = updatedTasks.filter(
+    (task) =>
+      new Date(task.dueDate).setHours(0, 0, 0, 0) ===
+        new Date().setHours(0, 0, 0, 0) && !task.done
+  );
+
+  showLottie.value = todayTasks.value.length === 0;
+
+  // Automatically hide Lottie after 1 second
+  if (showLottie.value) {
+    setTimeout(() => {
+      showLottie.value = false;
+    }, 5000); // Hide after 1 second
+  }
+};
+
+const editTask = (task) => {
+  emit("edit-task", task); // You can also open a dialog here
 };
 
 const deleteTask = (task) => {
-  confirm.require({
-    message: "Are you sure you want to delete this task?",
-    icon: "pi pi-info-circle",
-    rejectProps: {
-      label: "Cancel",
-      severity: "secondary",
-      outlined: true,
-    },
-    acceptProps: {
-      label: "Delete",
-      severity: "danger",
-    },
-    accept: () => {
-      const updatedTasks = props.tasks.filter((t) => t.id !== task.key);
-      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+  const updatedTasks = props.tasks.filter((t) => t.id !== task.key);
+  localStorage.setItem("tasks", JSON.stringify(updatedTasks));
 
-      emit("update-tasks", updatedTasks); // Emit event to parent
-      toast.add({
-        severity: "info",
-        summary: "Deleted",
-        detail: "Task deleted successfully",
-        life: 3000,
-      });
-    },
-    reject: () => {
-      toast.add({
-        severity: "warn",
-        summary: "Cancelled",
-        detail: "Task deletion cancelled",
-        life: 3000,
-      });
-    },
+  emit("update-tasks", updatedTasks); // Emit event to parent
+  toast.add({
+    severity: "info",
+    summary: "Deleted",
+    detail: "Deleted successfully",
+    life: 3000,
   });
 };
 
@@ -141,42 +144,124 @@ onMounted(() => {
 <template>
   <div class="card">
     <Toast />
-    <ConfirmPopup />
-    <Tree
-      :value="nodes"
-      class="w-[100vw] md:w-[30rem]"
-      :expandedKeys="expandedKeys"
-    >
-      <template #default="slotProps">
-        <CardTask
-          v-if="slotProps.node.type === 'task'"
-          :task="slotProps.node"
-          :key="slotProps.node.key"
-          :markAsDone="markAsDone"
-          :deleteTask="deleteTask"
+    <ConfirmPopup></ConfirmPopup>
+    <!-- Lottie Animation -->
+    <div v-if="showLottie" class="lottie-popup">
+      >
+      <div class="lottie-popup-content">
+        <DotLottieVue
+          src="https://lottie.host/5c7e24de-b4b7-472f-b726-d417a92728eb/y3heFHJzoY.lottie"
+          autoplay
+          loop
+          style="width: 200px; height: 200px"
         />
-        <div
-          v-else-if="slotProps.node.type === 'empty'"
-          class="text-center p-4"
-        >
-          <img
-            :src="emptyImage"
-            alt="No tasks"
-            class="mx-auto w-24 h-24 mb-2 opacity-70"
+        <p class="text-[15px]">
+          🎉 You’ve just finished your task! 🎉
+        </p>
+      </div>
+    </div>
+    <div class="flex">
+      <Tree
+        :value="nodes"
+        class="w-[100vw] md:w-[30rem]"
+        :expandedKeys="expandedKeys"
+      >
+        <template #default="slotProps">
+          <CardTask
+            v-if="slotProps.node.type === 'task'"
+            :task="slotProps.node"
+            :key="slotProps.node.key"
+            :markAsDone="markAsDone"
+            :deleteTask="deleteTask"
+            @editTask="editTask"
           />
-          <p class="text-[14px] opacity-55 -translate-y-[20px] font-semibold">
-            {{ slotProps.node.label }}
-          </p>
-        </div>
-        <b v-else class="text-white text-lg">{{ slotProps.node.label }}</b>
-      </template>
-    </Tree>
+
+          <div
+            v-else-if="slotProps.node.type === 'empty'"
+            class="text-center p-4"
+          >
+            <img
+              :src="emptyImage"
+              alt="No tasks"
+              class="mx-auto w-24 h-24 mb-2 opacity-70"
+            />
+            <p class="text-[14px] opacity-55 -translate-y-[20px] font-semibold">
+              {{ slotProps.node.label }}
+            </p>
+          </div>
+          <b v-else class="text-white text-lg">{{ slotProps.node.label }}</b>
+        </template>
+      </Tree>
+    </div>
   </div>
 </template>
 
-<style scoped>
+<style>
 .p-tree {
-  background: transparent;
+  background: transparent !important;
   width: 100%;
+}
+
+/* Lottie Popup Styles */
+.lottie-popup {
+  position: fixed;
+  top: -50px;
+  left: 16px;
+  width: 100vw;
+  height: 150vh;
+  background-color: rgba(0, 0, 0, 0.848);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.lottie-popup-content {
+  background: transparent;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(-200px);
+  border-radius: 8px;
+  animation: scaleUp 1s;
+}
+
+/* 🎈 Scale Up Effect */
+@keyframes scaleUp {
+  from {
+    transform: scale(0);
+    transform: translateY(-200px);
+  }
+  to {
+    transform: scale(1);
+    transform: translateY(-200px);
+  }
+}
+.p-tree-node-children .p-tree-node-label{
+  width: 100vw;
+}
+</style>
+<style>
+.p-toast-message {
+  width: 320px;
+  float: right;
+}
+li.p-tree-node {
+  width: 100%;
+}
+.p-tree-node-children {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.p-tree-root-children {
+  flex-direction: row !important;
+}
+@media screen and (max-width: 850px) {
+  .p-tree-root-children {
+    flex-direction: column !important;
+  }
 }
 </style>

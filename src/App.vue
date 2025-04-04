@@ -1,85 +1,90 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { ref, onMounted } from "vue";
+import AddTaskDialog from "./components/AddTaskDialog.vue";
+import EditTaskDialog from "./components/EditTaskDialog.vue";
+import TasksList from "./components/TasksList.vue";
+
+// Tasks array
+const tasks = ref([]);
+
+// Dialog visibility
+const showAddDialog = ref(false);
+const showEditDialog = ref(false);
+
+// Selected task for editing
+const selectedTask = ref(null);
+
+// Load tasks from localStorage
+onMounted(() => {
+  const storedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  tasks.value = storedTasks.map((task) => ({
+    ...task,
+    priority:
+      typeof task.priority === "object" ? task.priority.value : task.priority,
+  }));
+});
+
+// Add new task
+const addTask = (task) => {
+  tasks.value.push(task);
+  saveTasks();
+};
+
+// Open Edit Dialog
+const openEditDialog = (task) => {
+  selectedTask.value = { ...task };
+  showEditDialog.value = true;
+};
+
+const saveTasks = () => {
+  console.log("Saving tasks to localStorage:", tasks.value);
+  localStorage.setItem("tasks", JSON.stringify(tasks.value));
+};
+
+const updateTask = (updatedTask) => {
+  const index = tasks.value.findIndex((t) => t.id === updatedTask.id);
+  if (index !== -1) {
+    tasks.value[index] = { ...updatedTask }; // clone to ensure reactivity
+    saveTasks();
+    console.log("Updated task:", updatedTask);
+  }
+};
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div
+    class="min-h-screen bg-gray-900 text-white overflow-x-hidden flex justify-between"
+  >
+    <div>
+      <div class="flex justify-between items-center px-4 pt-5 pb-3">
+        <h2 class="text-xl font-bold mb-4">To Do List App</h2>
+        <button
+          @click="showAddDialog = true"
+          class="bg-blue-500 px-3 py-1 text-[14px] rounded"
+        >
+          Add Task
+        </button>
+      </div>
+      <hr class="pt-3">
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+      <div class="-translate-x-[14px] w-[100vw]">
+        <TasksList
+          :tasks="tasks"
+          @update-tasks="tasks = $event"
+          @edit-task="openEditDialog"
+        />
+      </div>
     </div>
-  </header>
 
-  <RouterView />
+    <!-- Add Task Dialog -->
+    <AddTaskDialog v-model:visible="showAddDialog" @add-task="addTask" />
+
+    <!-- Edit Task Dialog -->
+    <EditTaskDialog
+      v-if="selectedTask"
+      v-model:visible="showEditDialog"
+      :task="selectedTask"
+      @update-task="updateTask"
+    />
+  </div>
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
