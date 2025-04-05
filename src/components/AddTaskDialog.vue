@@ -113,4 +113,7 @@ const submitTask = () => {
   background: black !important;
   border-color: #71717a !important;
 }
+.p-select-option.p-select-option-selected {
+  color: black !important;
+}
 </style>

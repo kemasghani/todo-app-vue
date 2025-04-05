@@ -89,7 +89,24 @@ const updateTask = (updatedTask) => {
   </div>
 </template>
 <style>
-.p-tree-root{
+.p-tree-root {
   overflow-x: hidden !important;
+}
+.p-dialog-content input,
+.p-dialog-content .p-select-label {
+  color: white !important; /* Black */
+}
+li.p-select-option {
+  color: white !important;
+}
+ul.p-select-list {
+  background: black;
+}
+.p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {
+  background: #d1fae5;
+  color: black !important;
+}
+.p-select-option.p-select-option-selected {
+  background: black;
 }
 </style>
