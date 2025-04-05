@@ -267,5 +267,8 @@ li.p-tree-node {
   .p-tree-root-children {
     flex-direction: column !important;
   }
+  li.p-tree-node {
+    width: 100%;
+  }
 }
 </style>
