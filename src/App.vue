@@ -60,12 +60,12 @@ const updateTask = (updatedTask) => {
         <h2 class="text-xl font-bold mb-4">To Do List App</h2>
         <button
           @click="showAddDialog = true"
-          class="bg-blue-500 px-3 py-1 text-[14px] rounded"
+          class="bg-blue-500 px-3 py-1 text-[14px] rounded text-white"
         >
           Add Task
         </button>
       </div>
-      <hr class="pt-3">
+      <hr class="pt-3" />
 
       <div class="-translate-x-[14px] w-[100vw]">
         <TasksList
@@ -88,3 +88,8 @@ const updateTask = (updatedTask) => {
     />
   </div>
 </template>
+<style>
+.p-tree-root{
+  overflow-x: hidden !important;
+}
+</style>

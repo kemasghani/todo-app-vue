@@ -84,13 +84,33 @@ const submitTask = () => {
       />
 
       <div class="flex justify-end mt-4">
-        <button @click="closeDialog" class="bg-gray-600 px-4 py-2 rounded mr-2">
+        <button
+          @click="closeDialog"
+          class="bg-gray-600 px-4 py-2 rounded mr-2 text-white"
+        >
           Cancel
         </button>
-        <button @click="submitTask" class="bg-green-500 px-4 py-2 rounded">
+        <button
+          @click="submitTask"
+          class="bg-green-500 px-4 py-2 rounded text-white"
+        >
           Add
         </button>
       </div>
     </div>
   </Dialog>
 </template>
+<style>
+.p-dialog.p-component {
+  background: #18181b;
+  border: 1px solid #18181b;
+}
+.p-dialog {
+  color: white !important;
+}
+.p-select,
+.p-inputtext {
+  background: black !important;
+  border-color: #71717a !important;
+}
+</style>

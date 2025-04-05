@@ -155,9 +155,7 @@ onMounted(() => {
           loop
           style="width: 200px; height: 200px"
         />
-        <p class="text-[15px]">
-          🎉 You’ve just finished your task! 🎉
-        </p>
+        <p class="text-[15px]">🎉 You’ve just finished your task! 🎉</p>
       </div>
     </div>
     <div class="flex">
@@ -185,7 +183,7 @@ onMounted(() => {
               alt="No tasks"
               class="mx-auto w-24 h-24 mb-2 opacity-70"
             />
-            <p class="text-[14px] opacity-55 -translate-y-[20px] font-semibold">
+            <p class="text-[14px] opacity-85 -translate-y-[20px] font-semibold">
               {{ slotProps.node.label }}
             </p>
           </div>
@@ -205,7 +203,7 @@ onMounted(() => {
 /* Lottie Popup Styles */
 .lottie-popup {
   position: fixed;
-  top: -50px;
+  top: -90px;
   left: 16px;
   width: 100vw;
   height: 150vh;
@@ -239,7 +237,7 @@ onMounted(() => {
     transform: translateY(-200px);
   }
 }
-.p-tree-node-children .p-tree-node-label{
+.p-tree-node-children .p-tree-node-label {
   width: 100vw;
 }
 </style>
@@ -258,6 +256,12 @@ li.p-tree-node {
 }
 .p-tree-root-children {
   flex-direction: row !important;
+}
+li.p-tree-node {
+  width: 33.3%;
+}
+.p-tree-node.p-tree-node-leaf {
+  width: 100%;
 }
 @media screen and (max-width: 850px) {
   .p-tree-root-children {

@@ -119,3 +119,17 @@ const submitEdit = () => {
     </div>
   </Dialog>
 </template>
+<style>
+.p-dialog.p-component {
+  background: #18181b;
+  border: 1px solid #18181b;
+}
+.p-dialog {
+  color: white !important;
+}
+.p-select,
+.p-inputtext {
+  background: black !important;
+  border-color: #71717a !important;
+}
+</style>
