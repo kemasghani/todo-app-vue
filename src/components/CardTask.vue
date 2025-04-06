@@ -59,6 +59,7 @@ const handleEditClick = (e) => {
       <button
         class="px-3 py-1 text-xs font-semibold rounded-md bg-red-600 hover:bg-red-500 text-white transition-all duration-200"
         @click.stop="deleteTask(task, $event)"
+        data-testid="delete-button"
       >
         Delete
       </button>
@@ -70,6 +71,7 @@ const handleEditClick = (e) => {
             : 'bg-green-500 hover:bg-green-600 text-white'
         "
         @click.stop="markAsDone(task)"
+        data-testid="done-button"
       >
         <CheckIcon v-if="!task.done" class="w-3 h-3" />
         <BackwardIcon v-if="task.done" class="w-3 h-3" />

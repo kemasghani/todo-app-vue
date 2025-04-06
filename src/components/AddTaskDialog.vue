@@ -1,6 +1,5 @@
-<!-- components/AddTaskDialog.vue -->
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import Select from "primevue/select";
 import InputText from "primevue/inputtext";
 import Dialog from "primevue/dialog";
@@ -17,6 +16,7 @@ const emit = defineEmits(["update:visible", "add-task"]);
 const taskName = ref("");
 const dueDate = ref("");
 const priority = ref("");
+const showError = ref(false);
 
 // Priority options
 const priorities = ref([
@@ -25,6 +25,14 @@ const priorities = ref([
   { name: "High", value: "High" },
 ]);
 
+// Reset form
+const resetForm = () => {
+  taskName.value = "";
+  dueDate.value = "";
+  priority.value = "";
+  showError.value = false;
+};
+
 // Close dialog
 const closeDialog = () => {
   emit("update:visible", false);
@@ -32,7 +40,10 @@ const closeDialog = () => {
 
 // Add task function
 const submitTask = () => {
-  if (!taskName.value || !dueDate.value) return;
+  if (!taskName.value || !dueDate.value) {
+    showError.value = true;
+    return;
+  }
 
   emit("add-task", {
     id: Date.now(),
@@ -43,10 +54,16 @@ const submitTask = () => {
   });
 
   closeDialog();
-  taskName.value = "";
-  dueDate.value = "";
-  priority.value = "";
+  resetForm();
 };
+
+// Watch visibility to reset form on close
+watch(
+  () => props.visible,
+  (newVal) => {
+    if (!newVal) resetForm();
+  }
+);
 </script>
 
 <template>
@@ -57,17 +74,20 @@ const submitTask = () => {
     :style="{ width: '400px' }"
     @update:visible="emit('update:visible', $event)"
   >
-    <div class="p-4">
+    <form @submit.prevent="submitTask" class="p-4">
       <label class="block text-sm">Task Name</label>
       <InputText
         v-model="taskName"
+        data-testid="task-name"
         type="text"
         placeholder="Enter task name"
         class="w-full mt-1"
+        autofocus
       />
 
       <label class="block text-sm mt-3">Due Date</label>
       <input
+        data-testid="task-date"
         v-model="dueDate"
         type="datetime-local"
         class="w-full p-2 rounded bg-[#09090b] border-[1px] border-[#71717a] text-white mt-1"
@@ -83,23 +103,29 @@ const submitTask = () => {
         class="w-full mt-1"
       />
 
+      <p v-if="showError" class="text-red-400 text-sm mt-2">
+        Please fill in all required fields.
+      </p>
+
       <div class="flex justify-end mt-4">
         <button
+          type="button"
           @click="closeDialog"
-          class="bg-gray-600 px-4 py-2 rounded mr-2 text-white"
+          class="bg-gray-600 px-4 py-2 rounded mr-2 text-white hover:bg-gray-700 transition"
         >
           Cancel
         </button>
         <button
-          @click="submitTask"
-          class="bg-green-500 px-4 py-2 rounded text-white"
+          type="submit"
+          class="bg-green-500 px-4 py-2 rounded text-white hover:bg-green-600 transition"
         >
           Add
         </button>
       </div>
-    </div>
+    </form>
   </Dialog>
 </template>
+
 <style>
 .p-dialog.p-component {
   background: #18181b;
