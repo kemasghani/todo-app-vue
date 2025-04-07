@@ -23,7 +23,7 @@ const todayTasks = ref([]); // Store today's tasks
 const markAsDone = (task) => {
   const updatedTasks = props.tasks.map((t) => {
     if (t.id === task.key) {
-      return { ...t, done: !t.done }; // ✅ Toggle done status
+      return { ...t, done: !t.done };
     }
     return t;
   });
@@ -37,7 +37,12 @@ const markAsDone = (task) => {
     detail: task.done ? "Task moved back to pending" : "Task marked as done",
     life: 3000,
   });
-  checkIfAllTodayTasksDone(updatedTasks);
+  // ⬇️ Only run Lottie check if task is from TODAY
+  const taskDate = new Date(task.dueDate).setHours(0, 0, 0, 0);
+  const today = new Date().setHours(0, 0, 0, 0);
+  if (taskDate === today) {
+    checkIfAllTodayTasksDone(updatedTasks);
+  }
 };
 
 const checkIfAllTodayTasksDone = (updatedTasks) => {
@@ -146,16 +151,15 @@ onMounted(() => {
     <Toast />
     <ConfirmPopup></ConfirmPopup>
     <!-- Lottie Animation -->
-    <div v-if="showLottie" class="lottie-popup">
-      >
+    <div v-show="showLottie" class="lottie-popup">
       <div class="lottie-popup-content">
         <DotLottieVue
           src="https://lottie.host/5c7e24de-b4b7-472f-b726-d417a92728eb/y3heFHJzoY.lottie"
           autoplay
           loop
-          style="width: 200px; height: 200px"
+          style="width: 200px; height: 120px"
         />
-        <p class="text-[15px]">🎉 You’ve just finished your task! 🎉</p>
+        <p class="text-[15px] mt-8">🎉 You’ve just finished your task! 🎉</p>
       </div>
     </div>
     <div class="flex">
@@ -200,12 +204,12 @@ onMounted(() => {
   width: 100%;
 }
 
-/* Lottie Popup Styles */
 .lottie-popup {
   position: fixed;
   top: -90px;
   left: 16px;
   width: 100vw;
+  overflow-y: hidden;
   height: 150vh;
   background-color: rgba(0, 0, 0, 0.848);
   display: flex;
@@ -221,22 +225,20 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transform: translateY(-200px);
+  transform: translateY(-250px);
   border-radius: 8px;
   animation: scaleUp 1s;
 }
 
-/* 🎈 Scale Up Effect */
 @keyframes scaleUp {
   from {
-    transform: scale(0);
-    transform: translateY(-200px);
+    transform: scale(0) translateY(-250px);
   }
   to {
-    transform: scale(1);
-    transform: translateY(-200px);
+    transform: scale(1) translateY(-250px);
   }
 }
+
 .p-tree-node-children .p-tree-node-label {
   width: 100vw;
 }
